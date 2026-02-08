@@ -11,26 +11,48 @@
             - LinkedList?
             - or Wait till certain percentage of array is NULL and rearrange
               array? May not be good, if want to reenable/set char.
+
 - [ ] `run.c`
-    - [ ] Make buffer to write menu to
-        - [ ] Change MenuList > MenuScreen, MenuScreen hold buffer
-    - [ ] `check()`
+    - [x] `check()`
         - [x] check if needs to be compiled
-        - [ ] check if file needs to be created
-        - [ ] check if library needs to be downloaded
-    - [ ] `make()`
+        - [x] check if file needs to be created
+        - [x] check if library needs to be downloaded
+    - [x] `make()`
         - [x] make stage2
-        - [ ] compile/link libraries
+        - [x] compile/link libraries
     - [x] `run()`
+    - [ ] list of optional modules
+
 - [ ] stage2
-    - [ ] link json library
+    - [x] link json library
     - [ ] menu layer engine
-    - [ ] make json format file
-    - [ ] parse json into menu structure
+    - [-] make json format file
+        - [x] command
+        - [x] folder
+        - [x] script
+        - [ ] enter field
+        - [ ] module
+            - checks for modules
+            - if modules exists then add itself
+            - else ignores and logs
+    - [ ] Command parsing engine
+        - [x] commands to data
+        - [x] scripts to data
+        - [ ] folders to data
+        - [ ] hierarchy
+        - [ ] other formats
+    - [ ] search
+        - [ ] simple search
+        - [ ] fuzzy search <https://github.com/philj56/fuzzy-match>
+
 - [ ] Windows Compatibility Termios
+
+- [ ] module
 
 # Later
 
 - [ ] refactor `menu.h`
 - hold global variable showing what OS is in use
 - [ ] console print differently if menu not initalized
+- [ ] Make buffer to write menu to
+    - [ ] Change MenuList > MenuScreen, MenuScreen hold buffer

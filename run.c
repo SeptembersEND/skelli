@@ -35,6 +35,17 @@ int makedir(char* dir) {
   }
 }
 
+
+#define DEBUG "-ggdb"
+#ifndef DEBUG
+#define DEBUG ""
+#endif
+
+#define CC	"gcc"
+#define BUILD_DIR	"./build"
+#define SRC	"./src"
+#define LIB	"./lib"
+#define	CMD(...)	(char*[]){__VA_ARGS__, NULL}
 // TODO: rewrite
 int run_cmd(MenuConsole *con, char **args) {
   pid_t pid = fork();
@@ -51,11 +62,11 @@ int run_cmd(MenuConsole *con, char **args) {
     menu_appendconsole(con, "Unable to fork child.");
     return -2;
   } else {
-    char buf[128] = {0};
-    strncpy(buf, "+ ", 127);
+    char buf[256] = {0};
+    strncpy(buf, "+ ", 255);
     for (int x=0; args[x]!=NULL; x++) {
-      strncat(buf, args[x], 127);
-      strncat(buf, " ", 127);
+      strncat(buf, args[x], 255);
+      strncat(buf, " ", 255);
     }
     menu_appendconsole(con, buf);
     int status;
@@ -80,18 +91,17 @@ int checktime(const char *fpath, const struct stat *sb, int typeflag) {
 /**
  * confileupdir - Is file older than all files in directory, report using console.
  * return:
- * 	-2	path does not exist
  * 	-1	FTW error
- * 	 0	all files in dir older than path
+ * 	 0	all files in dir younger than path
  * 	 1	a file in dir is older than path
+ * 	 3	path does not exist
  */
 // <https://github.com/brechtsanders/libdirtrav>
 // <https://linux.die.net/man/3/nftw>
-int confileupdir(MenuConsole *con, const char* dir, const char* path) {
+int confileupdir(const char* dir, const char* path) {
   pathtime = get_fileModifyTime(path);
   if (pathtime == -1) {
-    menu_appendconsole(con, "[RUN] Unable to find file.");
-    return -2;
+    return 3;
   }
   int result = 0;
   result = ftw(dir, checktime, 0);
@@ -113,41 +123,70 @@ char *const s2path = S2PATH;
  * check - checks if stage2 needs updating or even exists
  *
  * return:
- * 	 0	no need to update
- * 	 1	confileupdir did not find updates or failed
- *	 2	library does not exist
+ *  -1    FTW error
+ * 	 0	  no need to update
+ * 	 0b01	  has older files then executable
+ *	 0b10	  library does not exist
+ *	 0b11    binary does not exist
  */
 int check(MenuConsole *con) {
-	// Check if directory is updated, or if s2path exists
-	int ret = 0;
-  if ((ret = confileupdir(con, "src", s2path)) == 1) {
-    return 0;
+  // TODO: abstract to `checklibraries()`
+  // Check if library exists
+  if (get_fileModifyTime(LIB "/jsmn/jsmn.h") == -1) {
+    return 2;
   }
-  return 1;
-}
-#define CC	"gcc"
-#define BUILD_DIR	"./build"
-#define SRC	"./src"
-#define LIB	"./lib"
-#define	CMD(...)	(char*[]){__VA_ARGS__, NULL}
-void make(MenuConsole *con) {
-  // TODO: seperate return for missing library
-	if (get_fileModifyTime(LIB"/jsmn/jsmn.h") == -1) {
-		menu_appendconsole(con, "[MAKE] Missing JSMN library");
-		return;
-	}
 
-	// Compile stage2
-  makedir(BUILD_DIR);
-  run_cmd(con, CMD(CC, "-I", "lib/jsmn/", "-c", "-o", BUILD_DIR"/stage2.o", SRC"/main.c"));
-  run_cmd(con, CMD(CC, "-c", "-o", BUILD_DIR"/jsmn.o", LIB"/jsmn/jsmn.h"));
-  run_cmd(con, CMD(CC, BUILD_DIR"/stage2.o", "-L", BUILD_DIR"/jsmn.o", "-o", S2PATH));
-}
-void run(MenuConsole *con) {
-  int ch = check(con);
-  if (ch == 0) {
-    make(con);
+	// Check if directory is updated, or if s2path exists
+	int ret = confileupdir("src", s2path);
+  if (ret == 1) {
+    return 1; // binary needs to be updated
   }
+  return ret;
+}
+
+void make(MenuConsole *con) {
+  if (get_fileModifyTime(LIB "/jsmn/jsmn.h") == -1) {
+    menu_appendconsole(con, "[MAKE] Missing JSMN library");
+    return;
+  }
+
+  // Compile stage2
+  makedir(BUILD_DIR);
+  run_cmd(con, CMD(CC, "-I", "lib/jsmn/", "-c", "-o", BUILD_DIR "/stage2.o",
+                   SRC "/main.c", DEBUG));
+  run_cmd(con, CMD(CC, "-c", "-o", BUILD_DIR "/jsmn.o", LIB "/jsmn/jsmn.h", DEBUG));
+  run_cmd(con, CMD(CC, BUILD_DIR "/stage2.o", "-L", BUILD_DIR "/jsmn.o", "-o",
+                   S2PATH, DEBUG));
+}
+
+void download(MenuConsole *con) {
+#if MENU_OS == LINUX
+	menu_appendconsole(con, "[DOWN] Retreiving submodules");
+	run_cmd(con, CMD("git", "submodule", "update", "--init", "--recursive"));
+#else
+  menu_appendconsole(con, "[DOWN] Retreiving submodules for this OS is not "
+                          "supported. Manual download required.");
+#endif
+}
+
+void run(MenuConsole *con) {
+  int rep = 0;
+  int ch = 0;
+  do {
+    int ch = check(con);
+    // If ch 0b00..01 has first bit set
+    // and is not a negative number.
+    if ((ch & -1) == 1) {
+      make(con);
+    } else if (ch == 2) {
+      download(con);
+    }
+    rep++;
+    if (rep >= 15) {
+      menu_appendconsole(con, "[RUN] Possible run on loop, for checking run.");
+      return;
+    }
+  } while(ch != 0);
 
   char *const argv[] = {s2path, NULL};
   menu_appendconsole(con, "[RUN] Starting stage2");
@@ -159,14 +198,6 @@ void run(MenuConsole *con) {
     printf("[RUN] Failed to run `execvp()`: %s", strerror(errno));
   }
   exit(0);
-}
-void download(MenuConsole *con) {
-#if MENU_OS == LINUX
-	menu_appendconsole(con, "[DOWN] Retreiving submodules");
-	run_cmd(con, CMD("git", "submodule", "update", "--init", "--recursive"));
-#else
-	menu_appendconsole(con, "[DOWN] Retreiving submodules for this OS is not supported");
-#endif
 }
 
 void checkanrun(char* str) {
@@ -211,7 +242,7 @@ void menuL1input(int index, MenuConsole *con, int *status) {
     } else {
       // TODO: console add new line tracking and use
       // `menu_appendconnl()` append console new line.
-      menu_appendconsole(con, "you wanna leave?\nHit me again\n");
+      menu_appendconsole(con, "you wanna leave?\nHit me again");
       hitme++;
     }
     return;
@@ -260,4 +291,4 @@ int main(int argc, char* argv[]) {
   menu_end();
   return 0;
 }
-// set shiftwidth=2 tabstop=2
+// vim: shiftwidth=2 tabstop=2 expandtab

@@ -68,7 +68,8 @@ void menu_ba(char *str, size_t len) {
 
 #if MENU_OS == LINUX
 int menu_ossetup_termios() {
-  if (tcgetattr(STDIN_FILENO, orig_termios) == 01)
+	orig_termios = &orig_termios_structure;
+  if (tcgetattr(STDIN_FILENO, orig_termios) == -1)
     // TODO: error
     return 1;
 
@@ -164,11 +165,16 @@ int menu_print(MenuState *state, MenuList *m) {
   return 0;
 }
 void menu_console(MenuConsole *mc) {
-	if (mc == NULL) return;
+  if (mc == NULL)
+    return;
   menu_ba("\n", 1);
   menu_ba((*mc).data, (*mc).len);
 }
 
+void menu_clearconsole(MenuConsole *mc) {
+  memset(mc->data, 0, mc->len);
+  mc->len = 0;
+}
 void menu_freeconsole(MenuConsole *mc) { ptr_free((void **)&((*mc).data)); }
 void menu_appendconsole(MenuConsole *mc, char* str) {
   if (mc == NULL) {
@@ -182,7 +188,7 @@ void menu_appendconsole(MenuConsole *mc, char* str) {
     for (; cap < (length + 1);)
       cap *= 2;
     (*mc).cap = cap;
-    (*mc).data = ptr_create(sizeof(MenuList) * (*mc).cap + 2);
+    (*mc).data = ptr_create(sizeof(MenuList) * (*mc).cap);
     memset((*mc).data, 0, (*mc).cap);
   }
   if ((*mc).len >= (*mc).cap + length) {
@@ -208,6 +214,7 @@ void menu_makelist(MenuList *m, char *title) {
   (*m).title = title;
   (*m).titlen = strlen(title);
 }
+
 // TODO: make `menu_appendlistn` has condition to check if assumed passed
 // index in the list. Dies if isnt.
 int menu_nappendlist(MenuList *m, char *str) {
@@ -282,3 +289,4 @@ void menu_keys(MenuState *state, char *s, char *d, char *u, char *b, char *q) {
   (*state).keys[3] = b;
   (*state).keys[4] = q;
 }
+// vim: shiftwidth=2 tabstop=2 expandtab

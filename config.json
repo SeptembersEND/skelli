@@ -1,0 +1,72 @@
+"format version": "0.1",
+"menu": [
+	{
+		"type": "command",
+		"name": "Test",
+		"description": "An echo and multiple run cmds",
+		"required": [ "BASH", "PROGRAM_top" ],
+		"disables": [ "" ],
+		"run": [ "top", "echo how are you?", "top" ],
+		"runner": "bash",
+		"set": ""
+	},
+	{
+		"type": "folder",
+		"name": "Bash Utils",
+		"description": "Utilities to Nick Cage people",
+		"required": [ "BASH" ],
+		"disables": [],
+		"menu": [
+		{
+			"type": "command",
+			"name": "Update",
+			"description": "Update apt based debian systems",
+			"required": [ "BASH", "PROGRAM_apt-get" ],
+			"disables": [ "" ],
+			"run": [ "sudo apt-get update && sudo apt-get upgrade" ],
+			"runner": "bash",
+			"set": ""
+		},
+		{
+			"type": "command",
+			"name": "Update",
+			"description": "Update pacman based arch systems",
+			"required": [ "BASH", "PROGRAM_pacman"],
+			"disables": [ "" ],
+			"run": [ "sudo apt-get update && sudo apt-get upgrade" ],
+			"runner": "bash",
+			"set": ""
+		}
+		]
+	},
+
+	{
+		"type": "folder",
+		"name": "Cage 'em",
+		"description": "Utilities to Nick Cage people",
+		"required": [ "WINDOWS", "POWERSHELL" ],
+		"disables": [],
+		"menu": [
+			{
+				"type": "command",
+				"name": "Get",
+				"description": "Get the image of nick cage",
+				"required": [],
+				"disables": [],
+				"run": [ "Invoke-Webrequest https://nick-cage.org/image.png" ],
+				"runner": "powershell",
+				"set": "cage_got"
+			},
+			{
+				"type": "script",
+				"name": "Set",
+				"description": "Change background to nick cage",
+				"required": [],
+				"disables": [ "cage_got" ],
+				"run": "powershell/setnickcage.ps",
+				"runner": "powershell",
+				"set": ""
+			}
+		]
+	}
+]
