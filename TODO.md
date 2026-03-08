@@ -1,58 +1,26 @@
-- https://www.lucavall.in/blog/how-to-structure-c-projects-my-experience-best-practices
-- https://viewsourcecode.org/snaptoken/kilo/
-- https://gist.github.com/ConnerWill/d4b6c776b509add763e17f9f113fd25b
+# Version 1.0
 
-- [ ] `menu.h`
-    - [x] Make menu
-    - [ ] console
-        - [ ] `menu_appendconsole();` have a variable list of `char**` check every
-          `console()` if one equals NULL, and remove it if it does.
-            - when destination cha[x] is NULL dont print and increase counter
-            - LinkedList?
-            - or Wait till certain percentage of array is NULL and rearrange
-              array? May not be good, if want to reenable/set char.
+- [ ] Bootstrap v0.1
+    - [ ] Build system
+        - [x] Commands
+            - [x] `run`         download, make and run stage2
+            - [x] `make`        compile stage2
+            - [x] `download`    download dependencies for stage2
+            - [x] `clean`       remove all created files
+        - [ ] Change directory
+    - [x] Input format specification
+    - [ ] Plan v0.2
+    - Goals
+        - Only Dependency: Compatible C Compiler
+        - Graphics Cross-Platform Compatible
+        - Supported Platforms: Windows, Linux
+    - Output
+        - C, C stdlib, git
+        - No graphics
+        - Linux
 
-- [ ] `run.c`
-    - [x] `check()`
-        - [x] check if needs to be compiled
-        - [x] check if file needs to be created
-        - [x] check if library needs to be downloaded
-    - [x] `make()`
-        - [x] make stage2
-        - [x] compile/link libraries
-    - [x] `run()`
-    - [ ] list of optional modules
 
-- [ ] stage2
-    - [x] link json library
-    - [ ] menu layer engine
-    - [-] make json format file
-        - [x] command
-        - [x] folder
-        - [x] script
-        - [ ] enter field
-        - [ ] module
-            - checks for modules
-            - if modules exists then add itself
-            - else ignores and logs
-    - [ ] Command parsing engine
-        - [x] commands to data
-        - [x] scripts to data
-        - [ ] folders to data
-        - [ ] hierarchy
-        - [ ] other formats
-    - [ ] search
-        - [ ] simple search
-        - [ ] fuzzy search <https://github.com/philj56/fuzzy-match>
+# Sources
 
-- [ ] Windows Compatibility Termios
-
-- [ ] module
-
-# Later
-
-- [ ] refactor `menu.h`
-- hold global variable showing what OS is in use
-- [ ] console print differently if menu not initalized
-- [ ] Make buffer to write menu to
-    - [ ] Change MenuList > MenuScreen, MenuScreen hold buffer
+- [Project Structure](https://www.lucavall.in/blog/how-to-structure-c-projects-my-experience-best-practices)
+- [ANSI Escape Sequences](https://gist.github.com/ConnerWill/d4b6c776b509add763e17f9f113fd25b)
