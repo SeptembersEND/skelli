@@ -1,7 +1,6 @@
 #ifndef PLATFORM___LINUX__H
 #define PLATFORM___LINUX__H
 
-#undef CHDIR
 #undef DOWNLOAD
 #undef EXEC
 #undef EXISTS

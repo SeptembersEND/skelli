@@ -7,7 +7,8 @@
             - [x] `make`        compile stage2
             - [x] `download`    download dependencies for stage2
             - [x] `clean`       remove all created files
-        - [x] Change directory to where executable is
+        - [ ] Check if in correct directory
+        - [ ] Work with Windows
     - [x] Input format specification
     - [x] Plan v0.2
     - Goals
@@ -38,3 +39,4 @@
 
 - [Project Structure](https://www.lucavall.in/blog/how-to-structure-c-projects-my-experience-best-practices)
 - [ANSI Escape Sequences](https://gist.github.com/ConnerWill/d4b6c776b509add763e17f9f113fd25b)
+- [Find Location of Executable](https://linuxvox.com/blog/how-do-i-find-the-location-of-the-executable-in-c/)

@@ -105,13 +105,3 @@ int execute(char **args) {
 
 #define DOWNLOAD(SAVE, SOURCE)                                                 \
   execute((char *[]){CMD_DOWNLOAD, SAVE, SOURCE, NULL})
-
-void change_dir(const char *path) {
-  int ret = chdir(path);
-
-  end_ptr = SET_ERROR((char*)path, 2);
-  ASSERT(ret == 0);
-  end_ptr = NULL;
-}
-
-#define CHDIR(PATH)	change_dir(PATH);

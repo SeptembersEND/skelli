@@ -81,30 +81,6 @@ void exec_type(enum Type type) {
   }
 }
 
-void move2stage1(char *argv) {
-  if (argv == NULL || *argv == '\0') {
-    return;
-  }
-
-  int length = 0;
-  for (; argv[length] != '\0';)
-    length++;
-
-  length--;
-  if (length < NAME_LEN) {
-    return;
-  }
-  length -= NAME_LEN;
-  if (argv[length] != '/' && argv[length] != '\\') {
-    return;
-  }
-
-  char hold = argv[length];
-  argv[length] = '\0';
-  CHDIR(argv);
-  argv[length] = hold;
-}
-
 void help(void) {
   fputs("Usage: " NAME " MODE\n\n"
         "Modes:\n"
@@ -126,8 +102,6 @@ int main(int argc, char *argv[]) {
 
   enum Type type = find_type(argv[1]);
   ASSERT(type != T_NONE);
-
-  move2stage1(argv[0]);
 
   exec_type(type);
 
