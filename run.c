@@ -3,8 +3,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define STAGE2_SRC "src/main.c"
+
 #define NAME "stage1"
 #define NAME_LEN 6
+
 #define ASSERT(expr)                                                           \
   do {                                                                         \
     if (!(expr)) {                                                             \
@@ -65,9 +68,11 @@ void exec_type(enum Type type) {
     exec_type(T_MAKE);
     return;
   case T_MAKE:
-    EXEC(CC, "src/main.c", "-o", "stage2");
+    CHECK(STAGE2_SRC);
+    EXEC(CC, STAGE2_SRC, "-o", "stage2");
     return;
   case T_DOWN:
+    CHECK(".git");
     //DOWNLOAD("", "");
     EXEC("git", "submodule", "update", "--init", "--recursive");
     return;
@@ -95,8 +100,6 @@ void help(void) {
 
 int main(int argc, char *argv[]) {
   end_ptr = help;
-  EXEC("pwd");
-
   ASSERT(argc > 1);
   ASSERT(argc < 3);
 

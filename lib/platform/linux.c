@@ -1,4 +1,3 @@
-#define _ERROR_MSG AE_RED "Error" AE_RES
 int g_platform_linux_error_errno = 0;
 char *g_platform_linux_error_msg = NULL;
 void platform_linux_error(void) {
@@ -9,7 +8,7 @@ void platform_linux_error(void) {
   }
 
   if (g_platform_linux_error_errno == 1) { /* 01: Means string does not exist */
-    fprintf(stderr, _ERROR_MSG ": Does not exist: %s\n",
+    fprintf(stderr, _ERROR_MSG ": Does not exist: `%s`\n",
             g_platform_linux_error_msg);
   } else if (g_platform_linux_error_errno == 2) { /* 02: Errno error */
     fprintf(stderr, _ERROR_MSG ": %s: %s\n", g_platform_linux_error_msg,
@@ -23,6 +22,11 @@ void platform_linux_error(void) {
 void set_error(char *msg, int num) {
   g_platform_linux_error_msg = msg;
   g_platform_linux_error_errno = num;
+}
+void end_error(void) {
+  end_ptr = NULL;
+  g_platform_linux_error_errno = 0;
+  g_platform_linux_error_msg = NULL;
 }
 
 #define ERROR platform_linux_error
@@ -53,7 +57,6 @@ int is_executable_in_path(char *name) {
   char real_path[4096]; // or PATH_MAX or something smarter
   for (item = strtok(path, ":"); (!found) && item; item = strtok(NULL, ":")) {
     sprintf(real_path, "%s/%s", item, name);
-    // printf("Testing %s\n", real_path);
     if (is_file(real_path) &&
         !(access(real_path, F_OK) ||
           access(real_path,
@@ -73,7 +76,7 @@ int execute(char **args) {
   end_ptr = SET_ERROR(args[0], 1);
   int exist = EXISTS(args[0]);
   ASSERT(exist != 0);
-  end_ptr = NULL;
+  end_error();
 
   do {
     for (int x = 0; args[x] != NULL; x++) {
@@ -105,3 +108,13 @@ int execute(char **args) {
 
 #define DOWNLOAD(SAVE, SOURCE)                                                 \
   execute((char *[]){CMD_DOWNLOAD, SAVE, SOURCE, NULL})
+
+void must_exist(const char* path) {
+  end_ptr = SET_ERROR((char*)path, 1);
+  int exist = access(path, F_OK);
+  ASSERT(exist == 0);
+  end_error();
+}
+
+#define CHECK(PATH) must_exist(PATH);
+#undef ERROR

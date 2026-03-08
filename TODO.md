@@ -1,13 +1,13 @@
 # Version 1.0
 
 - [ ] Bootstrap v0.1 -- stage1
-    - [x] Build system
+    - [ ] Build system
         - [x] Commands
             - [x] `run`         download, make and run stage2
             - [x] `make`        compile stage2
             - [x] `download`    download dependencies for stage2
             - [x] `clean`       remove all created files
-        - [ ] Check if in correct directory
+        - [x] Check if in correct directory
         - [ ] Work with Windows
     - [x] Input format specification
     - [x] Plan v0.2
@@ -40,3 +40,4 @@
 - [Project Structure](https://www.lucavall.in/blog/how-to-structure-c-projects-my-experience-best-practices)
 - [ANSI Escape Sequences](https://gist.github.com/ConnerWill/d4b6c776b509add763e17f9f113fd25b)
 - [Find Location of Executable](https://linuxvox.com/blog/how-do-i-find-the-location-of-the-executable-in-c/)
+- [win32ports: unistd.h](https://github.com/win32ports/unistd_h)

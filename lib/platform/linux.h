@@ -1,6 +1,7 @@
 #ifndef PLATFORM___LINUX__H
 #define PLATFORM___LINUX__H
 
+#undef CHECK
 #undef DOWNLOAD
 #undef EXEC
 #undef EXISTS
@@ -29,8 +30,9 @@
 #define AE_CYN
 #define AE_WHT
 #define AE_RES
-
 #endif
+
+#define _ERROR_MSG AE_RED "Error" AE_RES
 
 #include <errno.h>
 #include <stdio.h>
