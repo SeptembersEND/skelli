@@ -1,11 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <sys/wait.h>
-#include <unistd.h>
-
-#define _ERROR_MSG "\x1b[0;31mError\x1b[0;0m"
+#define _ERROR_MSG AE_RED "Error" AE_RES
 int g_platform_linux_error_errno = 0;
 char *g_platform_linux_error_msg = NULL;
 void platform_linux_error(void) {
@@ -15,15 +8,19 @@ void platform_linux_error(void) {
     return;
   }
 
-  if (g_platform_linux_error_errno == 1) { // 01: Means string does not exist
-    fprintf(stderr, _ERROR_MSG ": Does not exist: %s\n", g_platform_linux_error_msg);
+  if (g_platform_linux_error_errno == 1) { /* 01: Means string does not exist */
+    fprintf(stderr, _ERROR_MSG ": Does not exist: %s\n",
+            g_platform_linux_error_msg);
+  } else if (g_platform_linux_error_errno == 2) { /* 02: Errno error */
+    fprintf(stderr, _ERROR_MSG ": %s: %s\n", g_platform_linux_error_msg,
+            strerror(errno));
   }
 
   g_platform_linux_error_errno = 0;
   g_platform_linux_error_msg = NULL;
 }
 
-void set_error(char* msg, int num) {
+void set_error(char *msg, int num) {
   g_platform_linux_error_msg = msg;
   g_platform_linux_error_errno = num;
 }
@@ -106,4 +103,15 @@ int execute(char **args) {
 
 #define EXEC(...) execute((char *[]){__VA_ARGS__, NULL})
 
-#define DOWNLOAD(A1, A2) execute((char *[]){CMD_DOWNLOAD, A1, A2, NULL})
+#define DOWNLOAD(SAVE, SOURCE)                                                 \
+  execute((char *[]){CMD_DOWNLOAD, SAVE, SOURCE, NULL})
+
+void change_dir(const char *path) {
+  int ret = chdir(path);
+
+  end_ptr = SET_ERROR((char*)path, 2);
+  ASSERT(ret == 0);
+  end_ptr = NULL;
+}
+
+#define CHDIR(PATH)	change_dir(PATH);

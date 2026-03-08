@@ -2,6 +2,7 @@
 #define PLATFORM___PLATFORM__H
 
 // <https://www.geeksforgeeks.org/operating-systems/how-to-detect-operating-system-through-a-c-program/>
+
 #ifdef __linux__
 //#	warning	"Using `Linux OS` Options"
 #	include "linux.h"
